@@ -1,64 +1,48 @@
 ﻿
-namespace Exc4
+namespace Exc3
 {
-    class NumericSquareWriter
+    class IDCodeMatcher
     {
-        public static void WriteNumericSquareToFile(int number, string filePath)
-        {
-
-            // To append, use ", append: true" in streamWriter arguments
-            using (StreamWriter sw = new StreamWriter(filePath)) {
-
-                // Write the same line 'number' times
-                for (int i = 0; i < number; i++)
-                {
-                    // Create a single line for the square, using new string
-                    // 
-                    // This is super optimized because we don't even use
-                    // any lists or arrays, which helps us save memory. It also
-                    // helps save time
-                    sw.WriteLine(new string(number.ToString()[0], number));
-                }
-
-            }
-
-            Console.WriteLine($"Numeric square of {number}*{number} written to file: {filePath}");
-
-        }
-
         static void Main()
         {
-            // Ask the user for a number
-            Console.Write("Enter a number for the square size: ");
-            string input = Console.ReadLine();
 
-            // Try to parse the input to an integer
-            if (int.TryParse(input, out int number) && number > 0)
+            // File paths (you can change these paths to match your files' locations)
+            string beginningsFilePath = "outputs/beginnings.txt";
+            string endingsFilePath = "outputs/endings.txt";
+
+            string restoredFilePath = "outputs/restored_ids.txt";
+
+            // Read the beginnings and endings from their respective files
+            List<string> beginnings = File.ReadAllLines(beginningsFilePath).ToList();
+            List<string> endings = File.ReadAllLines(endingsFilePath).ToList();
+
+            // Create a list to store the restored IDs
+            List<string> restoredIds = new List<string>();
+
+            // Iterate through each beginning to find a matching ending
+            foreach (string beginning in beginnings)
             {
-                // Check if the folder exists
-                if (!Directory.Exists("outputs"))
+                foreach (string ending in endings)
                 {
-                    // If the folder doesn't exist, create it
-                    Directory.CreateDirectory("outputs");
-                    Console.WriteLine("Folder created: " + "outputs");
+                    // Check if the total length is 11
+                    if (beginning.Length + ending.Length == 11)
+                    {
+                        // Combine the beginning and ending to form the complete ID
+                        string restoredId = beginning + ending;
+                        restoredIds.Add(restoredId);
+                        // Remove the matched ending to prevent re-use
+                        endings.Remove(ending);
+                        break; // Break inner loop to move to the next beginning
+                    }
                 }
-
-                // Change the file path to a known location
-                string filePath = "outputs/numeric_square.txt";
-
-                // Generate the numeric square
-                WriteNumericSquareToFile(number, filePath);
-
-                // Display current directory for better user experience
-                Console.WriteLine("Current Directory: " + Directory.GetCurrentDirectory());
             }
-            else
-            {
-                Console.WriteLine("Please enter a valid positive integer.");
-            }
+
+            // Save the restored IDs to a new file
+            File.WriteAllLines(restoredFilePath, restoredIds);
+
+            Console.WriteLine("Restored IDs have been saved to: " + restoredFilePath);
         }
     }
-
 }
 
 
